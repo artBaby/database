@@ -15,7 +15,7 @@ typedef struct treap_t
 	struct treap_t* rightChild;
 } treap_t;
 
-treap_t *Add_Node(KEY_TYPE key)
+treap_t *Create_Node(KEY_TYPE key)
 {
 	treap_t *p_node = (treap_t *)malloc(sizeof(treap_t));
 	if(!p_node)
