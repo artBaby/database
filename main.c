@@ -15,6 +15,13 @@ char *get_item(char *str) {
     return str;
 }
 
+char *get_item2(char *str) {
+	char *verticalBar = strrchr(str, '|');
+	if (verticalBar)
+		*
+
+}
+
 void add_input(void) {
     char c;
     while ( scanf("%c", &c) == 1 && c!= '\n' )
@@ -22,20 +29,35 @@ void add_input(void) {
         ;
 }
 
+void add_input2(void) {
+	char c;
+	FILE *file;
+	while ( fscanf(file, "%c", &c) == 1 && c!= '\t' && c!= '|' )
+
+		;
+}
+
 int main(int argc, char *argv[])
 {
 	char *headerValue;
 	char ***database_p;
+	char ***database_p2;
 	int endOfWork=0;
 	int choise;
 	size_t headerCount;
 	size_t lengthCount;
+	size_t headerCount2;
+	size_t lengthCount2;
 	size_t i;
 	size_t j;
 	char answer;
+	char answer2;
 	int k;
+	char path[256];
 	FILE *file;
 	char filename[25];
+	char test[20];
+	
 
 	char buffer[MAX_STR_LENGTH];
 
@@ -121,7 +143,7 @@ int main(int argc, char *argv[])
 		
 			if ( (answer == 'Y') || (answer == 'y') )
 			{
-				printf("Имя файла: ");
+				printf("Введите путь, заменяя \\ на \\\\ (Например, C:\\myDataBase.txt): ");
 				scanf("%s", &filename);
 				puts(filename);
 				if ( (file = fopen (filename, "w+"))  ==  NULL)
@@ -130,6 +152,7 @@ int main(int argc, char *argv[])
 				}
 				else 
 				{
+					fprintf(file, "%u %u\n",lengthCount, headerCount);					
 					for ( i = 0; i < lengthCount; ++i ) 
 					{
 						fprintf(file,"|");
@@ -139,6 +162,7 @@ int main(int argc, char *argv[])
 						}
 						fprintf(file,"\n");
 					}
+
 					fclose(file);
 				}
 				//printf("YEEEES!!!");
@@ -169,6 +193,73 @@ int main(int argc, char *argv[])
 		
 	case 2:
 		{
+			k = 0;
+			while (k == 0){
+			printf("Введите путь, экранируя \\ - \\\\:	");
+				scanf("%s", &path);
+				printf("\npath: %s\n",path);
+				//puts(path);
+				if ( (file = fopen (path, "r+"))  ==  NULL)
+				{
+					printf("Ошибка записи в файл");
+				}
+
+				else
+				{
+					if ( fscanf(file,"%u %u\n", &lengthCount2, &headerCount2) != 2 )
+					{
+						printf("Неверный заголовок файла");
+						printf("Открыть новый файл? [Y/N] ");
+						scanf("%1s", &answer2);
+						if ( answer2 == 'n' || answer2 == 'N' )
+						break;
+
+					}
+					else
+					{
+						database_p2 = (char***)malloc(lengthCount2 * sizeof(char**));
+						if (database_p2 != NULL)
+						{
+							for (i = 0; i < lengthCount2; ++i)
+							{
+								database_p2[i] = (char**)malloc(headerCount2 * sizeof(char*));
+							}
+						}
+						else 
+						{
+							fprintf(stderr, "Ошибка выделения памяти");
+							return 1;
+						}
+
+						fscanf(file,"|\t%19c\t|",&test);
+						printf("\nTEST: %s", test);
+						/*for ( i = 0; i < lengthCount; ++i ) 
+						{
+							//fscanf(file, "\n");
+							for ( j = 0; j < headerCount; ++j )
+							{
+								fscanf(file,"|\t%s\t", database_p[i][j]);
+							}
+							fscanf(file,"|\n");
+
+							/*fscanf(file, );
+							fgets(buffer, 256, file);
+							puts(buffer);
+						}*/
+							fclose(file);
+						//	printf("TEST2 - %s", database_p[1][1]);
+					}					
+				}
+			}
+			for ( i = 0; i < lengthCount; ++i ) 
+			{
+				for ( j = 0; j < headerCount; ++j )
+					free(database_p[i][j]);
+				free(database_p[i]);
+			}
+			free(database_p);
+			printf("\n");
+
 			break;
 		}
 	case 3:
