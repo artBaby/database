@@ -49,7 +49,7 @@ treap_t *Left_turn(treap_t *x)
 
 treap_t *Insert(KEY_TYPE key, treap_t *root)
 {
-	treap_t *p_node = Add_Node(key);
+	treap_t *p_node = Create_Node(key);
 	if(!root)
 	{
 		return (root = p_node);
