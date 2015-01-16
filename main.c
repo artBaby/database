@@ -5,7 +5,7 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "treap.h"
+
 
 #define MAX_STR_LENGTH ( 512 )
 
@@ -26,6 +26,8 @@ typedef struct {
 	void* data;			//данные
 
 } kvp_t;
+
+#include "treap.h"
 
 void add_input(void) {
     char c;
@@ -66,6 +68,8 @@ char *get_str(char *str) {
 
 int main(int argc, char *argv[])
 {
+	/*pointer for struct*/
+	kvp_t *database;
 	char *operation;
 	char *key;
 	char *value;
@@ -77,6 +81,10 @@ int main(int argc, char *argv[])
 	int quote_count;
 	char buffer[MAX_STR_LENGTH];
 	char *p;
+	char *ptrEnd = NULL;
+	char *lol = "12 lol";
+
+	double num_value;
 
 	printf("Proposed operations:\nCreate\tRead\tUpdate\tDelete\nExample of query: create \"mykey\" \"myvalue\"\n");
 	
@@ -152,6 +160,8 @@ int main(int argc, char *argv[])
 		else if (quote_count == 2)
 		{
 			value = strtok ('\0', " ");
+			num_value = strtod(value, NULL);
+			printf("TESSTS: %f\n", num_value);
 			success = 1;
 		}
 		else 
@@ -163,10 +173,20 @@ int main(int argc, char *argv[])
 		printf("Operation: %s, Key: %s, Value: %s\n", operation, key, value);
 		success = 0;
 
-	/*	if ( !strcmp(operation, "create") ) 
+		/*
+		record-> data = malloc(record-> data_length)
+		*/
+		
+
+		if ( !strcmp(operation, "create") ) 
 		{
-			//create operations
-			
+			printf("Creating new record...\n");
+			treap_t *root = NULL; 
+			// key - указатель на структуру бд ключ-значение
+			database->key = (char*)malloc(database->key_length * sizeof(char));
+		
+
+
 		}
 
 		if (!strcmp(operation, "read"))
@@ -182,8 +202,9 @@ int main(int argc, char *argv[])
 		if (operation == "delete")
 		{
 			//delete operations
-		}*/
-		
+		}
+
+				
 	}
 	system("pause");
 }
