@@ -4,8 +4,11 @@
 #include <stdint.h>
 #include <time.h>
 
+/*treap_t *Create_Node(KEY_TYPE key);
+treap_t *Insert(KEY_TYPE key, treap_t *root);
+void Deleting(KEY_TYPE key, treap_t *Root)  ;*/
 
-typedef int KEY_TYPE;
+typedef kvp_t* KEY_TYPE;
 
 typedef struct treap_t
 {
@@ -73,7 +76,12 @@ treap_t *Insert(KEY_TYPE key, treap_t *root)
 	return root;
 }
 
-void Deleting(KEY_TYPE key, treap_t *&Root)
+/*treap_t *GetValue(KEY_TYPE key, treap_t )
+{
+
+}*/
+
+void Deleting(KEY_TYPE key, treap_t *Root)   // *& ?
 {
 	treap_t *father = NULL;
 	treap_t *root = Root;
@@ -207,4 +215,27 @@ void Deleting(KEY_TYPE key, treap_t *&Root)
 		}
 	}
 	printf("Invalid key\n");
+	}
+
+	void InOrder(treap_t *root)
+	{
+	if(root)
+	{
+		InOrder(root->leftChild);
+		printf("key: %s | priority: %d ", root->key->key, root->priority);
+		if(root->leftChild)
+		{
+			printf(" | left child: %s ", root->leftChild->key->key);
+		}
+		if(root->rightChild)
+		{
+			printf(" | right child: %s ", root->rightChild->key->key);
+		}
+		printf("\n");
+		InOrder(root->rightChild);
+	}
+	
+
+
+
 }
