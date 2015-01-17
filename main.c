@@ -21,7 +21,7 @@ typedef struct {
 
 	size_t key_length;  //длина ключа (4 байт)
 	char* key;			//сам ключ
-	data_type_t type;	//тип хранимых данных
+//	data_type_t type;	//тип хранимых данных
 	size_t data_length;	//длина данных (4 байт)
 	void* data;			//данные
 
@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
 	char *ptrEnd = NULL;
 	char *lol = "12 lol";
 
+	treap_t *root = NULL; //treap pointer
 	double num_value;
 
 	printf("Proposed operations:\nCreate\tRead\tUpdate\tDelete\nExample of query: create \"mykey\" \"myvalue\"\n");
@@ -161,7 +162,7 @@ int main(int argc, char *argv[])
 		{
 			value = strtok ('\0', " ");
 			num_value = strtod(value, NULL);
-			printf("TESSTS: %f\n", num_value);
+			//printf("TESSTS: %f\n", num_value);
 			success = 1;
 		}
 		else 
@@ -170,7 +171,9 @@ int main(int argc, char *argv[])
 				printf("Syntax mistake\n");				
 		}
 	}
-		printf("Operation: %s, Key: %s, Value: %s\n", operation, key, value);
+		//printf("Operation: %s, Key: %s, Value: %s\n", operation, key, value);
+		/*for (i = 0; i< strlen(key); ++i)
+			printf("%d\n", key[i]);*/ //102 117 99 107
 		success = 0;
 
 		/*
@@ -180,10 +183,24 @@ int main(int argc, char *argv[])
 
 		if ( !strcmp(operation, "create") ) 
 		{
-			printf("Creating new record...\n");
-			treap_t *root = NULL; 
+			database = (kvp_t*)malloc(sizeof(kvp_t));
+
+			printf("Creating new record...");
+			database->key_length = (size_t)malloc(sizeof(size_t));
+			database->key_length = strlen(key);
 			// key - указатель на структуру бд ключ-значение
 			database->key = (char*)malloc(database->key_length * sizeof(char));
+			database->key = key;
+
+			if (quote_count == 4)
+			{
+				database->data_length = strlen(value);
+				database->data = (char*)malloc(database->data_length * sizeof(char));
+			}
+
+			root = Insert (database, root);
+			printf("\n");
+			InOrder(root);
 		
 
 
