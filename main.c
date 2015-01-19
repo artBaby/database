@@ -11,17 +11,17 @@
 
 typedef enum types
 {
-	string_data,		//строковые данные
-	number_data,		//число
-	binary_data,		//бинарные данные
+	string_data = 1,		//строковые данные
+	number_data = 2,		//число
+	binary_data = 3,		//бинарные данные
 
 } data_type_t;
 
-typedef struct {
-
+typedef struct 
+{
 	size_t key_length;  //длина ключа (4 байт)
 	char* key;			//сам ключ
-//	data_type_t type;	//тип хранимых данных
+	data_type_t type;	//тип хранимых данных
 	size_t data_length;	//длина данных (4 байт)
 	void* data;			//данные
 
@@ -73,6 +73,7 @@ int main(int argc, char *argv[])
 	char *operation;
 	char *key;
 	char *value;
+	data_type_t type_input;
 	char *input;
 	char *copy_input;
 	int loop = 1;
@@ -82,8 +83,6 @@ int main(int argc, char *argv[])
 	char buffer[MAX_STR_LENGTH];
 	char *p;
 	char *ptrEnd = NULL;
-	char *lol = "12 lol";
-
 	treap_t *root = NULL; //treap pointer
 	double num_value;
 
@@ -107,108 +106,84 @@ int main(int argc, char *argv[])
 		while( !success )
 		{
 
-		if ( ! fgets(buffer, MAX_STR_LENGTH, stdin) )
+			if ( ! fgets(buffer, MAX_STR_LENGTH, stdin) )
 					{
 						fprintf(stderr, "Невозможно считать строку\n");
 						system("pause");
 						//return 1;
 					}
 		
-		if ( ! ( input = _strdup(get_str(buffer)) ) ) 
+			if ( ! ( input = _strdup(get_str(buffer)) ) ) 
 					{
 						fprintf(stderr, "Ошибка памяти\n");
 						system("pause");
 						//return 1;
 					}
-
-		printf("%s\n", input);
 		
-		/*
-		if (! (operation = strtok( input, " \"")))
-		{
-			fprintf(stderr, "Icorrect input.");
-			system("pause");
-			return 1;
-		}
-		printf("Test: %s\n",operation);
-
-		printf(input);
-		if (! (key = strtok( input, "\"")))
-		{
-			fprintf(stderr, "Icorrect input.");
-			system("pause");
-			return 1;
-		}
-		printf("Test: %s",key);*/
-
-
-		quote_count = ident_str(input);
-
-		p = strtok (input, " ");  //create
-		operation = p;
-		
-		p = strtok('\0', "\""); //"key"
-		key = p;
-		
-		if (quote_count == 4) 
-		{	
-		p = strtok('\0', "\""); //" "
-		p = strtok('\0', "\""); //"value"
-		
-		value = p;
-		success = 1;
-		}
-		else if (quote_count == 2)
-		{
-			value = strtok ('\0', " ");
-			num_value = strtod(value, NULL);
-			//printf("TESSTS: %f\n", num_value);
-			success = 1;
-		}
-		else 
+			quote_count = ident_str(input);
+			p = strtok (input, " ");  //operation
+			operation = p;						
+			p = strtok('\0', "\""); //"key"
+			key = p;		
+			if (quote_count == 4) 
+			{	
+				p = strtok('\0', "\""); //" "
+				p = strtok('\0', "\""); //"value"		
+				value = p;
+				type_input = string_data;
+				break;
+			}		
+			else if (quote_count == 2 && !strcmp(operation, "create"))
 			{
-				//printf("\nTEST: %d", quote_count);
-				printf("Syntax mistake\n");				
-		}
-	}
-		//printf("Operation: %s, Key: %s, Value: %s\n", operation, key, value);
-		/*for (i = 0; i< strlen(key); ++i)
-			printf("%d\n", key[i]);*/ //102 117 99 107
-		success = 0;
-
-		/*
-		record-> data = malloc(record-> data_length)
-		*/
-		
-
+				value = strtok ('\0', " ");
+				num_value = strtod(value, NULL);
+				printf("TESSTS: %f\n", num_value);
+				break;
+			}
+			else if (quote_count == 2 && !strcmp(operation, "read"))			
+				break;		
+			else if (quote_count == 2 && !strcmp(operation, "update") )
+				break;
+			else if (quote_count == 2 && !strcmp(operation, "delete") )
+				break;		
+			else
+				printf("Syntax mistake\n");			
+		}		
+			success = 0;
+	
+			/*
+			record-> data = malloc(record-> data_length)
+			*/
+	
 		if ( !strcmp(operation, "create") ) 
 		{
-			database = (kvp_t*)malloc(sizeof(kvp_t));
-
+			// добавить проверки на выделение памяти
 			printf("Creating new record...");
-			database->key_length = (size_t)malloc(sizeof(size_t));
+			database = (kvp_t*)malloc(sizeof(kvp_t));			
+			//database->key_length = (size_t)malloc(sizeof(size_t));
 			database->key_length = strlen(key);
-			// key - указатель на структуру бд ключ-значение
-			database->key = (char*)malloc(database->key_length * sizeof(char));
+			database->key = (char*)malloc(database->key_length * sizeof(char)); // key - указатель на ключ
 			database->key = key;
+			//database->type = (data_type_t*)malloc(sizeof(data_type_t));
 
+			//добавить флаг, чтобы в read проверять, было ли что-то вообще занесено или проверять это в treap.h
 			if (quote_count == 4)
 			{
 				database->data_length = strlen(value);
-				database->data = (char*)malloc(database->data_length * sizeof(char));
+				database->data = (char*)malloc(database->data_length * sizeof(char)); // value - указатель на значение
+				database->type = type_input;
 			}
 
 			root = Insert (database, root);
+			
 			printf("\n");
 			InOrder(root);
-		
-
-
 		}
 
 		if (!strcmp(operation, "read"))
 		{
-			//read operations
+			printf("Finding '%s' in database...\n", key);
+			//GetValue(database, root);
 		}
 
 		if (operation == "update")
@@ -216,11 +191,13 @@ int main(int argc, char *argv[])
 			//update operations
 		}
 	
-		if (operation == "delete")
+		if (!strcmp(operation,"delete"))
 		{
-			//delete operations
+			printf("delete '%s'", key);
+			Deleting(key, &root);
+			printf("\n");
+			InOrder(root);
 		}
-
 				
 	}
 	system("pause");
