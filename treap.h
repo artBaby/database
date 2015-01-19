@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
+#include <stddef.h>
 
 /*treap_t *Create_Node(KEY_TYPE key);
 treap_t *Insert(KEY_TYPE key, treap_t *root);
@@ -57,7 +58,7 @@ treap_t *Insert(KEY_TYPE key, treap_t *root)
 	{
 		return (root = p_node);
 	}
-	if(key <= root->key)
+	if (strcmp(key->key, root->key->key) < 0) //Lexicographical order
 	{
 		root->leftChild = Insert(key, root->leftChild);
 		if(root->leftChild->priority < root->priority)
@@ -76,15 +77,11 @@ treap_t *Insert(KEY_TYPE key, treap_t *root)
 	return root;
 }
 
-/*treap_t *GetValue(KEY_TYPE key, treap_t )
-{
-
-}*/
-
-void Deleting(KEY_TYPE key, treap_t *Root)   // *& ?
+void Deleting(char* key, treap_t **Root)
 {
 	treap_t *father = NULL;
-	treap_t *root = Root;
+	treap_t *root = *Root;
+	
 	if(!root)
 	{
 		printf("Deleting error. Treap is empty.\n");
@@ -92,23 +89,27 @@ void Deleting(KEY_TYPE key, treap_t *Root)   // *& ?
 	}
 	while(root)
 	{
-		if(key < root->key)
+
+		if (strcmp(key, root->key->key) < 0)
+		//if(key < root->key->key)
 		{
+			printf("\n1st CONDITION\n");
 			father = root;
 			root = root->leftChild;
 		}
-		else if(key > root->key)
+		else if (strcmp(key, root->key->key) > 0)//if(key > root->key->key)
 		{
 			father = root;
 			root = root->rightChild;
 		}
 		else
-		{
+		{ //GET's HERE
 			if(!root->leftChild)  // root's left child is empty
 			{
+
 				if(!father)
 				{
-					Root = root->rightChild;
+					*Root = root->rightChild;
 				}
 				else
 				{
@@ -126,7 +127,7 @@ void Deleting(KEY_TYPE key, treap_t *Root)   // *& ?
 			{
 				if(!father)
 				{
-					Root = root->leftChild;
+					*Root = root->leftChild;
 				}
 				else
 				{
@@ -148,8 +149,8 @@ void Deleting(KEY_TYPE key, treap_t *Root)   // *& ?
 					{
 						if(!father)
 						{
-							Root = Right_turn(root);
-							father = Root;
+							*Root = Right_turn(root);
+							father = *Root;
 						}
 						else
 						{
@@ -169,8 +170,8 @@ void Deleting(KEY_TYPE key, treap_t *Root)   // *& ?
 					{
 						if(!father)
 						{
-							Root = Left_turn(root);
-							father = Root;
+							*Root = Left_turn(root);
+							father = *Root;
 						}
 						else
 						{
@@ -217,10 +218,59 @@ void Deleting(KEY_TYPE key, treap_t *Root)   // *& ?
 	printf("Invalid key\n");
 	}
 
-	void InOrder(treap_t *root)
+	void Delete_Recursion(char* key, treap_t *root)
+{
+	if(!root)
 	{
-	if(root)
+		printf("treap empty, delete failed!\n");
+		return;
+	}
+	if (strcmp(key, root->key->key) < 0)
+	//if(key < root->key->key)
 	{
+		Delete_Recur(key, root->leftChild);
+	}
+	else if (strcmp(key, root->key->key) > 0)
+	//else if(key > root->key->key)
+	{
+		Delete_Recur(key, root->rightChild);
+	}
+	else
+	{
+		if(!root->leftChild || !root->rightChild)
+		{
+			treap_t *temp = root;
+			if(!root->leftChild)
+			{
+				root = root->rightChild;
+			}
+			else
+			{
+				root = root->leftChild;
+			}
+			free(temp);
+		}
+		else
+		{
+			if(root->leftChild->priority < root->rightChild->priority)
+			{
+				root = Right_turn(root);
+				Delete_Recur(key, root->rightChild);
+			}
+			else
+			{
+				root = Left_turn(root);
+				Delete_Recur(key, root->leftChild);
+			}
+		}
+	}
+}
+
+void InOrder(treap_t *root)
+{
+	if(root != NULL)
+	{
+		printf("ROOT = %s", root);
 		InOrder(root->leftChild);
 		printf("key: %s | priority: %d ", root->key->key, root->priority);
 		if(root->leftChild)
@@ -234,8 +284,81 @@ void Deleting(KEY_TYPE key, treap_t *Root)   // *& ?
 		printf("\n");
 		InOrder(root->rightChild);
 	}
+}
+
+/*	void GetValue(KEY_TYPE key, treap_t *root)
+	{
+		if (root)
+		{
+			if (root->leftChild)
+			{
+				GetValue(key, root->leftChild);
+				if (root->key->key == key->key)
+					printf("Result for key '%s':\n%s", root->leftChild->key->key, root->leftChild->key->data);
+			}
+
+			if (root->rightChild)
+			{
+				GetValue(key, root->rightChild);
+				if (root->key->key == key->key)
+					printf("Result for key '%s':\n%s", root->rightChild->key->key, root->rightChild->key->data);
+			}		
+		}		
+}*/
+
+	void PrintMe (void *p, int data_typ) 
+	{
+		char *c;
+		double *d;
+
+		switch(data_typ) 
+		{
+		case 1: 
+			{
+				c = (char*)p;
+				printf("String value: %s\n", *c); 
+				break;
+			}
+		case 2: 
+			{
+				d = (double*)p;
+				printf("Num data: %d\n", *d); 
+				break;
+			}
+		case 3:
+			{
+				// not suported yet
+			}
+		}
+	}
 	
-
-
-
+treap_t GetValue(KEY_TYPE key, treap_t *root)
+{
+	if(root)
+	{
+		GetValue(key, root->leftChild);
+		if ( !strcmp( root->key->key, key->key))
+		{
+			PrintMe(key->data, 1);
+			return;
+		}
+		if (root->leftChild)
+		{
+			if ( !strcmp(root->leftChild->key->key, key->key))
+			{
+				PrintMe(root->leftChild->key->data, root->leftChild->key->type);	
+				return;
+			}					
+		}
+		if(root->rightChild)
+		{
+			if ( !strcmp(root->rightChild->key->key, key->key))
+			{
+				PrintMe(root->rightChild->key->data, root->rightChild->key->type);
+				return;
+			}
+		}
+		
+		GetValue(key, root->rightChild);
+	}
 }
