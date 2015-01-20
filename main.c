@@ -138,6 +138,8 @@ int main(int argc, char *argv[])
 				value = strtok ('\0', " ");
 				num_value = strtod(value, NULL);
 				printf("TESSTS: %f\n", num_value);
+				type_input = number_data;
+				
 				break;
 			}
 			else if (quote_count == 2 && !strcmp(operation, "read"))			
@@ -164,13 +166,20 @@ int main(int argc, char *argv[])
 			database->key_length = strlen(key);
 			database->key = (char*)malloc(database->key_length * sizeof(char)); // key - указатель на ключ
 			database->key = key;
+			database->data_length = strlen(value);
 			//database->type = (data_type_t*)malloc(sizeof(data_type_t));
 
 			//добавить флаг, чтобы в read проверять, было ли что-то вообще занесено или проверять это в treap.h
 			if (quote_count == 4)
-			{
-				database->data_length = strlen(value);
-				database->data = (char*)malloc(database->data_length * sizeof(char)); // value - указатель на значение
+			{				
+				database->data = (char*)malloc(database->data_length); // value - указатель на значение
+				database->data = value;
+				database->type = type_input;
+			}
+			if (quote_count == 2)
+			{				
+				database->data = (double*)malloc(database->data_length*sizeof(double));
+				database->data = &num_value;
 				database->type = type_input;
 			}
 
@@ -182,8 +191,7 @@ int main(int argc, char *argv[])
 
 		if (!strcmp(operation, "read"))
 		{
-			printf("Finding '%s' in database...\n", key);
-			//GetValue(database, root);
+			GetValue(key, root);
 		}
 
 		if (operation == "update")
