@@ -89,7 +89,6 @@ void Deleting(char* key, treap_t **Root)
 	}
 	while(root)
 	{
-
 		if (strcmp(key, root->key->key) < 0)
 		//if(key < root->key->key)
 		{
@@ -218,7 +217,7 @@ void Deleting(char* key, treap_t **Root)
 	printf("Invalid key\n");
 	}
 
-	void Delete_Recursion(char* key, treap_t *root)
+/*	void Delete_Recursion(char* key, treap_t *root)
 {
 	if(!root)
 	{
@@ -228,12 +227,12 @@ void Deleting(char* key, treap_t **Root)
 	if (strcmp(key, root->key->key) < 0)
 	//if(key < root->key->key)
 	{
-		Delete_Recur(key, root->leftChild);
+		Delete_Recursion(key, root->leftChild);
 	}
 	else if (strcmp(key, root->key->key) > 0)
 	//else if(key > root->key->key)
 	{
-		Delete_Recur(key, root->rightChild);
+		Delete_Recursion(key, root->rightChild);
 	}
 	else
 	{
@@ -255,22 +254,21 @@ void Deleting(char* key, treap_t **Root)
 			if(root->leftChild->priority < root->rightChild->priority)
 			{
 				root = Right_turn(root);
-				Delete_Recur(key, root->rightChild);
+				Delete_Recursion(key, root->rightChild);
 			}
 			else
 			{
 				root = Left_turn(root);
-				Delete_Recur(key, root->leftChild);
+				Delete_Recursion(key, root->leftChild);
 			}
 		}
 	}
-}
+}*/
 
 void InOrder(treap_t *root)
 {
 	if(root != NULL)
 	{
-		printf("ROOT = %s", root);
 		InOrder(root->leftChild);
 		printf("key: %s | priority: %d ", root->key->key, root->priority);
 		if(root->leftChild)
@@ -306,23 +304,22 @@ void InOrder(treap_t *root)
 		}		
 }*/
 
-	void PrintMe (void *p, int data_typ) 
+void PrintMe (treap_t *Root) 
 	{
-		char *c;
-		double *d;
+		treap_t *root = Root;
+		char *c = (char *)root->key->data;
+		double d = *((double *)root->key->data);
 
-		switch(data_typ) 
+		switch(root->key->type) 
 		{
 		case 1: 
 			{
-				c = (char*)p;
-				printf("String value: %s\n", *c); 
+				printf("Key: '%s'\nvalue: %s\n\n", root->key->key, c); 
 				break;
 			}
 		case 2: 
 			{
-				d = (double*)p;
-				printf("Num data: %d\n", *d); 
+				printf("Key: '%s'\nvalue: %lf\n\n",root->key->key, d);
 				break;
 			}
 		case 3:
@@ -332,33 +329,26 @@ void InOrder(treap_t *root)
 		}
 	}
 	
-treap_t GetValue(KEY_TYPE key, treap_t *root)
+void GetValue(char* key, treap_t *root)
 {
-	if(root)
+	if (!root)
 	{
-		GetValue(key, root->leftChild);
-		if ( !strcmp( root->key->key, key->key))
+		printf("Finding error. Treap is empty.\n");
+		return;
+	}
+	else
+	{
+		if(strcmp(key, root->key->key) == 0)
 		{
-			PrintMe(key->data, 1);
-			return;
+			PrintMe(root);
 		}
-		if (root->leftChild)
+		else if (strcmp(key, root->key->key) < 0)
 		{
-			if ( !strcmp(root->leftChild->key->key, key->key))
-			{
-				PrintMe(root->leftChild->key->data, root->leftChild->key->type);	
-				return;
-			}					
+			GetValue(key, root->leftChild);
 		}
-		if(root->rightChild)
+		else if (strcmp(key, root->key->key) > 0)
 		{
-			if ( !strcmp(root->rightChild->key->key, key->key))
-			{
-				PrintMe(root->rightChild->key->data, root->rightChild->key->type);
-				return;
-			}
+			GetValue(key, root->rightChild);
 		}
-		
-		GetValue(key, root->rightChild);
 	}
 }
