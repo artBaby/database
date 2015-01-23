@@ -1,67 +1,6 @@
-#include <stdio.h>
-#include <Windows.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <malloc.h>
-#include <string.h>
-
-
-
-#define MAX_STR_LENGTH ( 512 )
-
-typedef enum types
-{
-	string_data = 1,		//строковые данные
-	number_data = 2,		//число
-	binary_data = 3,		//бинарные данные
-
-} data_type_t;
-
-typedef struct 
-{
-	size_t key_length;  //длина ключа (4 байт)
-	char* key;			//сам ключ
-	data_type_t type;	//тип хранимых данных
-	size_t data_length;	//длина данных (4 байт)
-	void* data;			//данные
-
-} kvp_t;
 
 #include "treap.h"
-
-void add_input(void) {
-    char c;
-	int count_quot;
-	count_quot = 0;
-    while ( scanf("%c", &c) == 1 /*&& c!= '\n'*/ ) {
-		if ( c == '\"') count_quot++;
-		if ( count_quot == 4) break;
-	}  
-}
-
-int ident_str(char *str) {
-	int i, count;
-	count = 0;
-	
-	for (i = 0; i < strlen(str); ++i)
-	{
-		if (str[i] == '\"')
-			count++;
-		
-	}
-	if (count == 2) return 2;		//2 " - means that value is a num
-	else if (count == 4) return 4;	//4 " - means that value is a str or bin_dat
-	else if (count == 3) return 3;
-	else return count;					//other - syntax error
-}
-
-char *get_str(char *str) {
-	
-    char *enter = strrchr(str, '\n');
-    if (enter)
-        *enter = '\0';
-    return str;
-}
+#include "main.h"
 
 // CRUD:
 // CREATE READ UPDATE DELETE
@@ -149,7 +88,9 @@ int main(int argc, char *argv[])
 			}
 			//черти как присваиваются num_value и value.
 			else if (quote_count == 2 && !strcmp(operation, "delete") )
-				break;		
+				break;	
+			else if (!strcmp(operation, "show"))
+				break;
 			else
 				printf("Syntax mistake\n");			
 		}		
@@ -160,7 +101,7 @@ int main(int argc, char *argv[])
 		if ( !strcmp(operation, "create") ) 
 		{
 			// добавить проверки на выделение памяти
-			printf("\aCreating new record . . .\n");
+			printf("Creating new record . . .\n");
 			database = (kvp_t*)malloc(sizeof(kvp_t));			
 			//database->key_length = (size_t)malloc(sizeof(size_t));
 			database->key_length = strlen(key);
@@ -171,13 +112,13 @@ int main(int argc, char *argv[])
 			//добавить флаг, чтобы в read проверять, было ли что-то вообще занесено или проверять это в treap.h
 			if (quote_count == 4)
 			{				
-				database->data = (char*)malloc(database->data_length); // value - указатель на значение
+				database->data = malloc(database->data_length); // value - указатель на значение
 				database->data = value;
 				database->type = type_input;
 			}
 			if (quote_count == 2)
 			{				
-				database->data = (double*)malloc(database->data_length*sizeof(double));
+				database->data = malloc(database->data_length/**sizeof(double)*/);
 				database->data = &num_value;
 				database->type = type_input;
 			}
@@ -185,6 +126,8 @@ int main(int argc, char *argv[])
 			printf("Completed!\n");
 			//InOrder(root); - вывод дерева
 		}
+		if ( !strcmp(operation, "show") ) 
+			InOrder(root);
 
 		if (!strcmp(operation, "read"))
 		{
@@ -196,7 +139,7 @@ int main(int argc, char *argv[])
 
 		if (!strcmp(operation, "update"))
 		{
-			printf("\aUpdating '%s'. . .\n", key);
+			printf("Updating '%s'. . .\n", key);
 			if ( !GetValue(key, root))
 				printf("Key '%s' not found.\n", key);
 			else
@@ -223,8 +166,7 @@ int main(int argc, char *argv[])
 					database->type = type_input;
 				}
 				root = Insert (database, root);			
-				printf("Completed!\n");
-	
+				printf("Completed!\n");	
 				}
 			}
 	
