@@ -23,7 +23,8 @@ int main(int argc, char *argv[])
 	char *p;
 	char *ptrEnd = NULL;
 	treap_t *root = NULL; //treap pointer
-	double num_value;
+	float *num_value = 0;
+	double *num_value_ptr;
 	treap_t *got_root;
 
 	printf("Proposed operations:\nCreate\tRead\tUpdate\tDelete\nExample of query: create \"mykey\" \"myvalue\"\n");
@@ -71,7 +72,8 @@ int main(int argc, char *argv[])
 			else if (quote_count == 2 && !strcmp(operation, "create"))
 			{
 				value = strtok ('\0', " ");
-				num_value = strtod(value, NULL);
+				//num_value = strtod(value, NULL);
+				//num_value_ptr = &num_value;
 			//	printf("TESSTS: %f\n", num_value);
 				type_input = number_data;				
 				break;
@@ -81,7 +83,8 @@ int main(int argc, char *argv[])
 			else if (quote_count == 2 && !strcmp(operation, "update") )
 			{
 				value = strtok ('\0', " ");
-				num_value = strtod(value, NULL);
+				//num_value_ptr = &num_value;
+				//*num_value = strtod(value, NULL);
 			//	printf("TESSTS: %f\n", num_value);
 				type_input = number_data;
 				break;
@@ -110,18 +113,24 @@ int main(int argc, char *argv[])
 			database->data_length = strlen(value);
 			//database->type = (data_type_t*)malloc(sizeof(data_type_t));
 			//добавить флаг, чтобы в read проверять, было ли что-то вообще занесено или проверять это в treap.h
-			if (quote_count == 4)
+			database->data = malloc(database->data_length);
+			database->data = value;
+			database->type = type_input;
+			
+			/*if (quote_count == 4)
 			{				
-				database->data = malloc(database->data_length); // value - указатель на значение
-				database->data = value;
-				database->type = type_input;
+				//database->data = malloc(database->data_length); // value - указатель на значение
+				//database->data = value;
+				//database->type = type_input;
 			}
 			if (quote_count == 2)
 			{				
-				database->data = malloc(database->data_length/**sizeof(double)*/);
-				database->data = &num_value;
+				//database->data = malloc(database->data_length*sizeof(double));
+				database->data = malloc(database->data_length*sizeof(float));
+				database->data = num_value;
 				database->type = type_input;
-			}
+			}*/
+
 			root = Insert (database, root);			
 			printf("Completed!\n");
 			//InOrder(root); - вывод дерева
@@ -153,7 +162,10 @@ int main(int argc, char *argv[])
 				database->data_length = strlen(value);
 				//database->type = (data_type_t*)malloc(sizeof(data_type_t));
 				//добавить флаг, чтобы в read проверять, было ли что-то вообще занесено или проверять это в treap.h
-				if (quote_count == 4)
+				database->data = malloc(database->data_length); // value - указатель на значение
+				database->data = value;
+				database->type = type_input;
+				/*if (quote_count == 4)
 				{				
 					database->data = (char*)malloc(database->data_length); // value - указатель на значение
 					database->data = value;
@@ -161,10 +173,10 @@ int main(int argc, char *argv[])
 				}
 				if (quote_count == 2)
 				{				
-					database->data = (double*)malloc(database->data_length*sizeof(double));
-					database->data = &num_value;
+					database->data = malloc(database->data_length*sizeof(double));
+					database->data = num_value_ptr;
 					database->type = type_input;
-				}
+				}*/
 				root = Insert (database, root);			
 				printf("Completed!\n");	
 				}
@@ -176,8 +188,7 @@ int main(int argc, char *argv[])
 			Deleting(key, &root);
 			printf("\n");
 			InOrder(root);
-		}
-				
+		}				
 	}
 	system("pause");
 }
