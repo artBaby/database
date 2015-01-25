@@ -1,11 +1,5 @@
-
 #include "treap.h"
-
 #include "main.h"
-
-/*treap_t *Create_Node(KEY_TYPE key);
-treap_t *Insert(KEY_TYPE key, treap_t *root);
-void Deleting(KEY_TYPE key, treap_t *Root)  ;*/
 
 typedef kvp_t* KEY_TYPE;
 
@@ -216,53 +210,6 @@ void Deleting(char* key, treap_t **Root)
 	printf("Invalid key\n");
 	}
 
-/*	void Delete_Recursion(char* key, treap_t *root)
-{
-	if(!root)
-	{
-		printf("treap empty, delete failed!\n");
-		return;
-	}
-	if (strcmp(key, root->key->key) < 0)
-	//if(key < root->key->key)
-	{
-		Delete_Recursion(key, root->leftChild);
-	}
-	else if (strcmp(key, root->key->key) > 0)
-	//else if(key > root->key->key)
-	{
-		Delete_Recursion(key, root->rightChild);
-	}
-	else
-	{
-		if(!root->leftChild || !root->rightChild)
-		{
-			treap_t *temp = root;
-			if(!root->leftChild)
-			{
-				root = root->rightChild;
-			}
-			else
-			{
-				root = root->leftChild;
-			}
-			free(temp);
-		}
-		else
-		{
-			if(root->leftChild->priority < root->rightChild->priority)
-			{
-				root = Right_turn(root);
-				Delete_Recursion(key, root->rightChild);
-			}
-			else
-			{
-				root = Left_turn(root);
-				Delete_Recursion(key, root->leftChild);
-			}
-		}
-	}
-}*/
 
 void InOrder(treap_t *root)
 {
@@ -283,29 +230,11 @@ void InOrder(treap_t *root)
 	}
 }
 
-/*	void GetValue(KEY_TYPE key, treap_t *root)
-	{
-		if (root)
-		{
-			if (root->leftChild)
-			{
-				GetValue(key, root->leftChild);
-				if (root->key->key == key->key)
-					printf("Result for key '%s':\n%s", root->leftChild->key->key, root->leftChild->key->data);
-			}
-
-			if (root->rightChild)
-			{
-				GetValue(key, root->rightChild);
-				if (root->key->key == key->key)
-					printf("Result for key '%s':\n%s", root->rightChild->key->key, root->rightChild->key->data);
-			}		
-		}		
-}*/
 
 void PrintMe (treap_t *Root) 
 	{
 		treap_t *root = Root;
+		double num_value;
 		switch(root->key->type) 
 		{
 		case 1: 
@@ -316,13 +245,16 @@ void PrintMe (treap_t *Root)
 			}
 		case 2: 
 			{
-				double d = *(double *)root->key->data;
-				printf("Key: '%s'\nvalue: %lf\n",root->key->key, d);
+				char *c = (char *)root->key->data;
+				num_value = strtod(c,NULL);
+				printf("Key: '%s'\nvalue: %lf\n",root->key->key, num_value);
 				break;
 			}
 		case 3:
 			{
-				// not suported yet
+				char *c = (char *)root->key->data;
+				printf("Key: '%s'\nvalue: %X\n", root->key->key, c); 
+				break;
 			}
 		}
 	}
@@ -339,7 +271,6 @@ treap_t *GetValue(char* key, treap_t *root)
 	{
 		if(strcmp(key, root->key->key) == 0)
 		{
-			//PrintMe(root);
 			return result;
 		}
 		else if (strcmp(key, root->key->key) < 0)
