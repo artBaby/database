@@ -8,8 +8,10 @@
 #include <malloc.h>
 #include <string.h>
 #include <time.h>
+#include "pars.h"
+#include "IObin.h"
 
-#define MAX_STR_LENGTH ( 512 )
+#define MAX_STR_LENGTH ( 1024 )
 
 typedef enum types
 {
@@ -18,8 +20,11 @@ typedef enum types
 	binary_data = 3,		//бинарные данные
 } data_type_t;
 
+typedef BMP_HEADER* HEADER;
+
 typedef struct 
 {
+	HEADER head;
 	size_t key_length;  //длина ключа (4 байт)
 	char* key;			//сам ключ
 	data_type_t type;	//тип хранимых данных
@@ -27,8 +32,26 @@ typedef struct
 	void* data;			//данные
 } kvp_t;
 
-void add_input(void);
-int ident_str(char *str);
-char *get_str(char *str);
+/*
+typedef struct
+{
+	char signature[2];
+	unsigned int fileSize;
+	unsigned short int reserved1;
+	unsigned short int reserved2;
+	unsigned int offset;
+	unsigned int headerLength;
+	unsigned int width;
+	unsigned int height;
+	short numLayers;
+	short bpp;
+	unsigned int compression;
+	unsigned int bitmapLength;
+	unsigned int horResolution;
+	unsigned int verResolution;
+	unsigned int numColors;
+	unsigned int numMainColors;
+} BMP_HEADER;
+*/
 
 #endif
