@@ -1,63 +1,36 @@
-
 #include "treap.h"
 #include "main.h"
+#include "memget.h"
+#include "reader.h"
+#include "save.h"
+#include "IObin.h"
 
-// CRUD:
-// CREATE READ UPDATE DELETE
 
 int main(int argc, char *argv[])
 {
-	/*pointer for struct*/
-	kvp_t *database;
-	char *operation;
-	char *key;
-	char *value;
+	kvp_t *database = NULL;
+	char *operation, *key, *value = NULL, *input;
 	data_type_t type_input;
-	char *input;
-	char *copy_input;
-	int loop = 1;
-	int i;
-	int success = 0;
-	int quote_count;
-	char buffer[MAX_STR_LENGTH];
+	int loop = 1, success = 0, quote_count;
 	char *p;
 	char *ptrEnd = NULL;
 	treap_t *root = NULL; //treap pointer
 	float *num_value = 0;
-	double *num_value_ptr;
 	treap_t *got_root;
+	FILE *file;
+	long filesize;
+	char * filebuffer;
+	size_t filehex;
+	char *man = "Proposed operations:\nCreate\tRead\tUpdate\tDelete\nExample of query: create \"mykey\" \"myvalue\"\nYou can enter this types of input to 'myvalue'\n1.NUMBER (without quotes)\n2.STRING (bounded with quotes)\n3.PATH TO FILE (if PATH does not exist, it will be submitted as STRING)\n";
 
-	printf("Proposed operations:\nCreate\tRead\tUpdate\tDelete\nExample of query: create \"mykey\" \"myvalue\"\n");
-	
+	printf(man);	
 	while (loop)
 	{
-		
-		/*
-		create "mykey" "my value"
-		create "something" 42
-		update "something" 49
-		
-		для бинарных данных:
-		createbin "somethingfromfile" "c:/hello.bmp"
-		update "somethingfromfile" "c:/hello_from_base.bmp"
-		*/
-		//add_input();
-
-
 		while( !success )
 		{
-			if ( ! fgets(buffer, MAX_STR_LENGTH, stdin) )
-					{
-						fprintf(stderr, "Невозможно считать строку\n");
-						system("pause");
-					}		
-			if ( ! ( input = _strdup(get_str(buffer)) ) ) 
-					{
-						fprintf(stderr, "Ошибка памяти\n");
-						system("pause");
-					}		
+			input = read();
 			quote_count = ident_str(input);
-			p = strtok (input, " ");  //operation
+			p = strtok(input, " ");  //operation
 			operation = p;						
 			p = strtok('\0', "\""); //"key"
 			key = p;		
@@ -66,78 +39,106 @@ int main(int argc, char *argv[])
 				p = strtok('\0', "\""); //" "
 				p = strtok('\0', "\""); //"value"		
 				value = p;
-				type_input = string_data;
+				file = fopen(p, "rb");
+				//if path doesn't exist then string_data
+				if ( file == NULL )
+				{
+					type_input = string_data;	
+				}
+				//else binary
+				else
+				{
+					type_input = binary_data;
+					value = (char*)ReadBMP(file);
+					/*
+					// obtain file size:
+					fseek (file , 0 , SEEK_END);
+					filesize = ftell (file);
+					rewind (file);
+ 
+					// allocate memory to contain the whole file:
+					filebuffer = (char*) malloc (sizeof(char)*filesize);
+					if (filebuffer == NULL) 
+					{
+						fputs ("Memory error",stderr); 
+						exit (2);
+					}
+ 
+					// copy the file into the buffer:
+					filehex = fread (filebuffer,1,filesize,file);
+					if (filehex != filesize) 
+					{
+						fputs ("Reading error",stderr); 
+						exit (3);
+					}
+									
+					// terminate
+					fclose (file);
+					free (filebuffer);					
+					sprintf(value, "%d", filehex);	
+					*/
+
+				}
 				break;
 			}		
+			else if (operation == NULL)
+				printf("Invalid operation\n");
+			else if ( !strcmp(operation, "clear"))
+			{
+				system("cls");
+				printf(man);
+			}
 			else if (quote_count == 2 && !strcmp(operation, "create"))
 			{
 				value = strtok ('\0', " ");
-				//num_value = strtod(value, NULL);
-				//num_value_ptr = &num_value;
-			//	printf("TESSTS: %f\n", num_value);
+				if (value != NULL)
+				{
 				type_input = number_data;				
 				break;
+				}
+				else 
+				{
+					printf("Value not found\n");
+				}
 			}
-			else if (quote_count == 2 && !strcmp(operation, "read"))			
+			else if (quote_count == 2 && !strcmp(operation, "read") )			
 				break;		
 			else if (quote_count == 2 && !strcmp(operation, "update") )
 			{
 				value = strtok ('\0', " ");
-				//num_value_ptr = &num_value;
-				//*num_value = strtod(value, NULL);
-			//	printf("TESSTS: %f\n", num_value);
 				type_input = number_data;
 				break;
-			}
-			//черти как присваиваются num_value и value.
+			}			
 			else if (quote_count == 2 && !strcmp(operation, "delete") )
-				break;	
-			else if (!strcmp(operation, "show"))
+				break;
+			else if (!strcmp(operation, "save") && key != NULL && quote_count == 2)
+				break;
+			else if (!strcmp(operation, "show") )
 				break;
 			else
 				printf("Syntax mistake\n");			
 		}		
 			success = 0;	
-			/*
-			record-> data = malloc(record-> data_length)
-			*/	
-		if ( !strcmp(operation, "create") ) 
-		{
-			// добавить проверки на выделение памяти
-			printf("Creating new record . . .\n");
-			database = (kvp_t*)malloc(sizeof(kvp_t));			
-			//database->key_length = (size_t)malloc(sizeof(size_t));
-			database->key_length = strlen(key);
-			database->key = (char*)malloc(database->key_length * sizeof(char)); // key - указатель на ключ
-			database->key = key;
-			database->data_length = strlen(value);
-			//database->type = (data_type_t*)malloc(sizeof(data_type_t));
-			//добавить флаг, чтобы в read проверять, было ли что-то вообще занесено или проверять это в treap.h
-			database->data = malloc(database->data_length);
-			database->data = value;
-			database->type = type_input;
 			
-			/*if (quote_count == 4)
-			{				
-				//database->data = malloc(database->data_length); // value - указатель на значение
-				//database->data = value;
-				//database->type = type_input;
+			if ( !strcmp(operation, "create") && value != NULL ) 
+		{
+			got_root = GetValue(key, root);
+			if (! got_root)
+			{
+				database = memget(database, key, value, type_input);
+				if ( database != NULL )
+				{
+					root = Insert(database, root);			
+					printf("Completed!\n");
+				}
+				else 
+				{
+					printf("Memory error\n");
+				}			
 			}
-			if (quote_count == 2)
-			{				
-				//database->data = malloc(database->data_length*sizeof(double));
-				database->data = malloc(database->data_length*sizeof(float));
-				database->data = num_value;
-				database->type = type_input;
-			}*/
-
-			root = Insert (database, root);			
-			printf("Completed!\n");
-			//InOrder(root); - вывод дерева
+			else 
+				printf("Key '%s' already exists\n", key);
 		}
-		if ( !strcmp(operation, "show") ) 
-			InOrder(root);
-
 		if (!strcmp(operation, "read"))
 		{
 			got_root = GetValue(key, root);
@@ -145,7 +146,6 @@ int main(int argc, char *argv[])
 				printf("Key '%s' not found.\n", key);
 			else PrintMe(got_root);
 		}
-
 		if (!strcmp(operation, "update"))
 		{
 			printf("Updating '%s'. . .\n", key);
@@ -154,44 +154,28 @@ int main(int argc, char *argv[])
 			else
 			{
 				Deleting(key, &root);
-				database = (kvp_t*)malloc(sizeof(kvp_t));			
-				//database->key_length = (size_t)malloc(sizeof(size_t));
-				database->key_length = strlen(key);
-				database->key = (char*)malloc(database->key_length * sizeof(char)); // key - указатель на ключ
-				database->key = key;
-				database->data_length = strlen(value);
-				//database->type = (data_type_t*)malloc(sizeof(data_type_t));
-				//добавить флаг, чтобы в read проверять, было ли что-то вообще занесено или проверять это в treap.h
-				database->data = malloc(database->data_length); // value - указатель на значение
-				database->data = value;
-				database->type = type_input;
-				/*if (quote_count == 4)
-				{				
-					database->data = (char*)malloc(database->data_length); // value - указатель на значение
-					database->data = value;
-					database->type = type_input;
-				}
-				if (quote_count == 2)
-				{				
-					database->data = malloc(database->data_length*sizeof(double));
-					database->data = num_value_ptr;
-					database->type = type_input;
-				}*/
-				root = Insert (database, root);			
-				printf("Completed!\n");	
-				}
+				database = memget(database, key, value, type_input);
+				if (database != NULL)
+				{
+					root = Insert (database, root);			
+					printf("Completed!\n");
+				}	
+				else printf("Memory error!\n");
 			}
-	
+		}	
 		if (!strcmp(operation,"delete"))
 		{
-			printf("delete '%s'", key);
+			printf("Deleting '%s'. . . \n", key);
 			Deleting(key, &root);
-			printf("\n");
+			printf("Completed!\n");
+		}
+		//make typedef for operations, cuz strcmp slower.
+		if ( !strcmp( operation, "save") )
+		{
+			savetofile(root, key);
+		}
+		if ( !strcmp(operation, "show") ) 
 			InOrder(root);
-		}				
 	}
 	system("pause");
 }
-
-
-
