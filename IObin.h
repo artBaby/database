@@ -36,9 +36,9 @@ typedef struct
 int buferr;
 int realwidth(int width);
 FILE* OpenF(char *filename);
-BMP_HEADER GetHeader(FILE *filename);
+BMP_HEADER *GetHeader(FILE *filename);
 void LoadBMPData(unsigned char *image, unsigned int size, FILE *filename);
-int SaveBMPData(char *filename, BMP_HEADER header, unsigned char *image);
-unsigned char *ReadBMP(FILE *file);
+int SaveBMPData(char *filename, BMP_HEADER *header, unsigned char *image);
+unsigned char *ReadBMP(FILE *file, BMP_HEADER *header);
 
 #endif // !IOBIN_H
