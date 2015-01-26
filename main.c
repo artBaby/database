@@ -9,6 +9,7 @@
 int main(int argc, char *argv[])
 {
 	kvp_t *database = NULL;
+	BMP_HEADER *head = NULL;
 	char *operation, *key, *value = NULL, *input;
 	data_type_t type_input;
 	int loop = 1, success = 0, quote_count;
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
 	char *ptrEnd = NULL;
 	treap_t *root = NULL; //treap pointer
 	float *num_value = 0;
-	treap_t *got_root;
+	treap_t *got_root, *bmp_root;
 	FILE *file;
 	long filesize;
 	char * filebuffer;
@@ -49,7 +50,13 @@ int main(int argc, char *argv[])
 				else
 				{
 					type_input = binary_data;
-					value = (char*)ReadBMP(file);
+					head = GetHeader(file);
+					if (! head)
+					{
+						break;
+					}
+					value = (char*)ReadBMP(file, head);
+					
 					/*
 					// obtain file size:
 					fseek (file , 0 , SEEK_END);
@@ -111,7 +118,7 @@ int main(int argc, char *argv[])
 			}			
 			else if (quote_count == 2 && !strcmp(operation, "delete") )
 				break;
-			else if (!strcmp(operation, "save") && key != NULL && quote_count == 2)
+			else if (!strcmp(operation, "save") )
 				break;
 			else if (!strcmp(operation, "show") )
 				break;
@@ -125,7 +132,7 @@ int main(int argc, char *argv[])
 			got_root = GetValue(key, root);
 			if (! got_root)
 			{
-				database = memget(database, key, value, type_input);
+				database = memget(database, key, value, type_input, head);
 				if ( database != NULL )
 				{
 					root = Insert(database, root);			
@@ -154,7 +161,7 @@ int main(int argc, char *argv[])
 			else
 			{
 				Deleting(key, &root);
-				database = memget(database, key, value, type_input);
+				database = memget(database, key, value, type_input, head);
 				if (database != NULL)
 				{
 					root = Insert (database, root);			
@@ -170,9 +177,14 @@ int main(int argc, char *argv[])
 			printf("Completed!\n");
 		}
 		//make typedef for operations, cuz strcmp slower.
-		if ( !strcmp( operation, "save") )
+		if ( !strcmp( operation, "save") && key == NULL && value == NULL)
 		{
 			savetofile(root, key);
+		}
+		if ( !strcmp( operation, "save") && key != NULL && value != NULL)
+		{
+			bmp_root = GetValue(key, root);
+			SaveBMPData(value, bmp_root->key->head, (unsigned char*)bmp_root->key->data);
 		}
 		if ( !strcmp(operation, "show") ) 
 			InOrder(root);
