@@ -8,9 +8,7 @@ unsigned char *ReadBMP(FILE* file, BMP_HEADER *header)
 	//BMP_HEADER header;
 	BMP_HEADER *head = header;
 	unsigned char* image;
-	char *filename_c="flipped_by_C.bmp";
-	char *filename_ASM="flipped_by_ASM.bmp";
-	char *filename_MMX="flipped_by_MMX.bmp";
+
 	image = NULL;
 
 	//file=OpenF(filename);
