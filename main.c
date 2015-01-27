@@ -56,35 +56,6 @@ int main(int argc, char *argv[])
 						break;
 					}
 					value = (char*)ReadBMP(file, head);
-					
-					/*
-					// obtain file size:
-					fseek (file , 0 , SEEK_END);
-					filesize = ftell (file);
-					rewind (file);
- 
-					// allocate memory to contain the whole file:
-					filebuffer = (char*) malloc (sizeof(char)*filesize);
-					if (filebuffer == NULL) 
-					{
-						fputs ("Memory error",stderr); 
-						exit (2);
-					}
- 
-					// copy the file into the buffer:
-					filehex = fread (filebuffer,1,filesize,file);
-					if (filehex != filesize) 
-					{
-						fputs ("Reading error",stderr); 
-						exit (3);
-					}
-									
-					// terminate
-					fclose (file);
-					free (filebuffer);					
-					sprintf(value, "%d", filehex);	
-					*/
-
 				}
 				break;
 			}		
