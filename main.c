@@ -177,17 +177,26 @@ int main(int argc, char *argv[])
 			printf("Completed!\n");
 		}
 		//make typedef for operations, cuz strcmp slower.
-		if ( !strcmp( operation, "save") && key == NULL && value == NULL)
+		if ( !strcmp( operation, "save")  )
 		{
+			if ( !key )
+				{
+					printf("Wrong input! arguments:\nsave [\"key\"] \"path\"\n");
+			}
+			else if ( key && !value )
+			{
 			savetofile(root, key);
+			}
 		}
-		if ( !strcmp( operation, "save") && key != NULL && value != NULL)
+		/*if ( !strcmp( operation, "save") && key != NULL && value != NULL)
 		{
 			bmp_root = GetValue(key, root);
 			SaveBMPData(value, bmp_root->key->head, (unsigned char*)bmp_root->key->data);
-		}
+		}*/
 		if ( !strcmp(operation, "show") ) 
 			InOrder(root);
+		key = NULL;
+		value = NULL;
 	}
 	system("pause");
 }
