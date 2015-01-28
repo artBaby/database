@@ -14,7 +14,7 @@ update "dating" "2 year" - update old value of key "dating" to new value "2 year
 delete "Old life" - delete value of key "Old Life" and key "Old Life" from database.
 
 save "C:\database.txt" - save all keys and their values to file 'database.txt' located in root of disk C.
-BMP-files save in the same path.
+Save BMP-files in the same path.
 
 
 
