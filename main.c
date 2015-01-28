@@ -4,6 +4,7 @@
 #include "reader.h"
 #include "save.h"
 #include "IObin.h"
+#include "open.h"
 
 
 int main(int argc, char *argv[])
@@ -17,11 +18,8 @@ int main(int argc, char *argv[])
 	char *ptrEnd = NULL;
 	treap_t *root = NULL; //treap pointer
 	float *num_value = 0;
-	treap_t *got_root, *bmp_root;
+	treap_t *got_root;
 	FILE *file;
-	long filesize;
-	char * filebuffer;
-	size_t filehex;
 	char *man = "Proposed operations:\nCreate\tRead\tUpdate\tDelete\nExample of query: create \"mykey\" \"myvalue\"\nYou can enter this types of input to 'myvalue'\n1.NUMBER (without quotes)\n2.STRING (bounded with quotes)\n3.PATH TO FILE (if PATH does not exist, it will be submitted as STRING)\n";
 
 	printf(man);	
@@ -41,21 +39,15 @@ int main(int argc, char *argv[])
 				p = strtok('\0', "\""); //"value"		
 				value = p;
 				file = fopen(p, "rb");
-				//if path doesn't exist then string_data
-				if ( file == NULL )
-				{
+				if ( file == NULL ){
 					type_input = string_data;	
 				}
-				//else binary
-				else
-				{
+				else{
 					type_input = binary_data;
 					head = GetHeader(file);
-					if (! head)
-					{
-						break;
-					}
-					value = (char*)ReadBMP(file, head);
+					if (head){
+						value = (char*)ReadBMP(file, head);
+					}					
 				}
 				break;
 			}		
@@ -93,6 +85,8 @@ int main(int argc, char *argv[])
 				break;
 			else if (!strcmp(operation, "show") )
 				break;
+			else if ( !strcmp(operation, "open"))
+				break;
 			else
 				printf("Syntax mistake\n");			
 		}		
@@ -104,15 +98,12 @@ int main(int argc, char *argv[])
 			if (! got_root)
 			{
 				database = memget(database, key, value, type_input, head);
-				if ( database != NULL )
-				{
+				if ( database != NULL ){
 					root = Insert(database, root);			
-					printf("Completed!\n");
+					printf("Done!\n");
 				}
 				else 
-				{
-					printf("Memory error\n");
-				}			
+				{printf("Memory error\n");}			
 			}
 			else 
 				printf("Key '%s' already exists\n", key);
@@ -126,7 +117,7 @@ int main(int argc, char *argv[])
 		}
 		if (!strcmp(operation, "update"))
 		{
-			printf("Updating '%s'. . .\n", key);
+			printf("Updating '%s'. . .", key);
 			if ( !GetValue(key, root))
 				printf("Key '%s' not found.\n", key);
 			else
@@ -136,16 +127,16 @@ int main(int argc, char *argv[])
 				if (database != NULL)
 				{
 					root = Insert (database, root);			
-					printf("Completed!\n");
+					printf("Done!\n");
 				}	
 				else printf("Memory error!\n");
 			}
 		}	
 		if (!strcmp(operation,"delete"))
 		{
-			printf("Deleting '%s'. . . \n", key);
+			printf("Deleting '%s'. . . ", key);
 			Deleting(key, &root);
-			printf("Completed!\n");
+			printf("Done!\n");
 		}
 		//make typedef for operations, cuz strcmp slower.
 		if ( !strcmp( operation, "save")  )
@@ -158,6 +149,13 @@ int main(int argc, char *argv[])
 			{
 			savetofile(root, key);
 			}
+			else if ( key && value )
+			{
+				got_root = GetValue(key, root);
+			if (! got_root)
+				printf("Key '%s' not found.\n", key);
+			else savebykey(got_root, value);
+			}
 		}
 		/*if ( !strcmp( operation, "save") && key != NULL && value != NULL)
 		{
@@ -166,6 +164,8 @@ int main(int argc, char *argv[])
 		}*/
 		if ( !strcmp(operation, "show") ) 
 			InOrder(root);
+		if ( !strcmp(operation, "open"))
+		root = openfromfile(key);
 		key = NULL;
 		value = NULL;
 	}
