@@ -18,5 +18,7 @@ Save BMP-files in the same path.
 
 open "C:\mydb.txt" - download all keys, values and BMP-files to database.
 
+show - print database (treap) structure (keys, priorities, children) 
+
 
 ========
