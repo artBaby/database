@@ -2,116 +2,50 @@
 #include <malloc.h>
 
 
-unsigned char *ReadBMP(FILE* file, BMP_HEADER *header)
-{	
-	//FILE* file;					
-	//BMP_HEADER header;
-	BMP_HEADER *head = header;
-	unsigned char* image;
 
-	image = NULL;
-
-	//file=OpenF(filename);
-
-	//if (!file) { printf("Error opening file\n"); return NULL; }
-
-	//head=GetHeader(file);
-
-	/*if (head->signature[0] != 'B' && head->signature[1] != 'M')
-	{
-		printf("bad file structure! \n");
-		fclose(file);
-		return NULL;
-	}
-
-	if (head->bpp != 24)
-	{
-		printf("bpp!=24\n");
-		fclose(file);
-		return NULL;
-	}*/
-
-	image = (unsigned char*)malloc(head->bitmapLength);
-	LoadBMPData(image, head->bitmapLength, file);
-	return image;
-
-}
-
-FILE* OpenF(char *filename)
+size_t GetSize(char *value)
 {
-	FILE *file;
-	printf("open filename =  %s \n", filename);	
-	file = fopen(filename, "r+b");
-	if (file == NULL)
-	{
-		printf("Could not open file \n");
-		
-		return NULL;
-	}
-	return file;
+	 FILE* source = NULL;
+    long int source_size = 0;
+	source = fopen( value, "rb" );
+
+	fseek( source, 0, SEEK_END );
+	source_size = ftell( source );
+	return source_size;
 }
 
-BMP_HEADER *GetHeader(FILE *file)
+char *ReadBin(char* value, char* buf) {
+
+    FILE* source = NULL; 
+    long int source_size = 0;
+
+    source = fopen( value, "rb" );
+    if (!source) {  return NULL; }
+
+    fseek( source, 0, SEEK_END );
+    source_size = ftell( source );
+    printf( "Source size is %ld\n", source_size );
+    
+    buf = (char*)malloc( source_size );   
+    rewind( source );
+	fread( buf, source_size, 1, source );
+    fclose( source );
+
+    return buf;
+}
+
+void WriteBin(char *filename, char* data, long int data_length)
 {
-	//BMP_HEADER header;
-	BMP_HEADER *head;
+    FILE* dest = NULL;
+    long int source_size = 0;
 
-	if ( ! (head = (BMP_HEADER *)malloc(sizeof(BMP_HEADER))) )
-		{
-			printf("Allocating error\n");
-			return NULL;
-	}
-	fread(head, sizeof(BMP_HEADER), 1, file);
-	if (head->signature[0] != 'B' && head->signature[1] != 'M')
-	{
-		printf("bad file structure! \n");
-		fclose(file);
-		return NULL;
-	}
+    dest = fopen( filename, "wb" );
+    if (!dest) { printf("Could not open file\n"); return; }
 
-	if (head->bpp != 24)
-	{
-		printf("bpp!=24\n");
-		fclose(file);
-		return NULL;
-	}
-	
-	printf("width %u", head->width);
-	return head;
+    rewind( dest );
+	fwrite( data, data_length, 1, dest );
+
+    fclose( dest );   
+    return;
 }
 
-void LoadBMPData(unsigned char *image, unsigned int size, FILE *filename)
-{
-	fread(image, sizeof(unsigned char), size, filename);
-}
-
-
-int SaveBMPData(char *filename, BMP_HEADER *header, unsigned char *image)
-{
-	int s;
-	FILE *file;
-	file = fopen(filename, "w+b");
-	if (file == NULL)
-	{
-		printf("Could not create new file \n");
-		return 1;
-	}
-	s = fwrite(header, sizeof(BMP_HEADER), 1, file);
-	if (s != 1)
-	{
-		fclose(file);
-		printf("Could not write header to file \n");
-		return 1;
-	}
-
-	s=fwrite(image, sizeof(unsigned char), header->bitmapLength, file);
-	if (s != header->bitmapLength)
-	{
-		fclose(file);
-		printf("Could not write data to file \n");
-		return 1;
-	}
-
-	fclose(file);
-	return 0;
-}
